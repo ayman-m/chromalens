@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=78.1.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chromalens"
+version = "0.1.0"
+description = "A powerful Python client and intuitive UI for ChromaDB vector database management"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Ayman Mahmoud", email = "ayman.s.mahmoud@outlook.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests>=2.32.3",
+    "pydantic>=2.11.3"
+]
+
+[project.optional-dependencies]
+ui = [
+    "streamlit>=1.44.1",
+    "pandas>=2.2.3",
+    "plotly>=6.0.1",
+]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ayman-m/chromalens"
+"Bug Tracker" = "https://github.com/ayman-m/chromalens/issues"
+
+[tool.setuptools]
+packages = ["chromalens"]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
