@@ -27,7 +27,7 @@ class BaseClient:
     def __init__(
         self, 
         host: str = "localhost",
-        port: int = 8000,
+        port: int = 8008,
         tenant: str = "default_tenant",
         database: str = "default_database",
         ssl: bool = False,
@@ -54,11 +54,9 @@ class BaseClient:
         self.database = database
         self.timeout = timeout
         self.verify_ssl = verify_ssl
-        
         # Construct the base URL
         protocol = "https" if ssl else "http"
         self.base_url = f"{protocol}://{host}:{port}"
-        
         # Initialize headers with defaults
         self.headers = {
             'Accept': 'application/json',
@@ -165,7 +163,6 @@ class BaseClient:
         
         try:
             logger.debug(f"Making {method} request to {url}")
-            
             response = requests.request(
                 method=method,
                 url=url,
@@ -176,7 +173,6 @@ class BaseClient:
                 timeout=timeout,
                 verify=self.verify_ssl
             )
-            
             # Check for errors
             self._validate_response(response)
             

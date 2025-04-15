@@ -130,15 +130,7 @@ class ChromaLensClient(BaseClient):
             raise
     
     # ========== Tenant Operations ==========
-    
-    def list_tenants(self) -> List[Dict[str, Any]]:
-        """
-        List all tenants.
-        
-        Returns:
-            List of tenant objects
-        """
-        return self.get(ENDPOINT_TENANTS, API_V2)
+
     
     def create_tenant(self, name: str) -> Dict[str, Any]:
         """
@@ -279,11 +271,11 @@ class ChromaLensClient(BaseClient):
             API_V2,
             params=params
         )
-    
     def create_collection(
         self,
         name: str,
         metadata: Optional[Dict[str, Any]] = None,
+        embedding_function: Optional[Dict[str, Any]] = None,
         dimension: Optional[int] = None,
         get_or_create: bool = False,
         database: Optional[str] = None,
@@ -295,6 +287,7 @@ class ChromaLensClient(BaseClient):
         Args:
             name: Name of the collection to create
             metadata: Optional metadata for the collection
+            embedding_function: Optional embedding function configuration
             dimension: Vector dimension (default is 768)
             get_or_create: If True, return existing collection if it exists
             database: Database name (defaults to client's default database)
@@ -306,23 +299,38 @@ class ChromaLensClient(BaseClient):
         tenant = tenant or self.tenant
         database = database or self.database
         
+        # Prepare the base request data
         json_data = {
             FIELD_NAME: name,
             "get_or_create": get_or_create
         }
         
+        # Add metadata if provided
         if metadata is not None:
             json_data[FIELD_METADATA] = metadata
-            
+        
+        # Prepare configuration if needed
+        configuration = {}
+        
+        # Add embedding function configuration if provided
+        if embedding_function is not None:
+            configuration["embedding_function"] = embedding_function
+        
+        # Add HNSW configuration with dimension if provided
         if dimension is not None:
-            json_data[FIELD_DIMENSION] = dimension
-            
+            hnsw_config = {"dimension": dimension}
+            configuration["hnsw"] = hnsw_config
+        
+        # Add configuration to request if not empty
+        if configuration:
+            json_data["configuration"] = configuration
+        
         return self.post(
             f"{ENDPOINT_TENANTS}/{tenant}/{ENDPOINT_DATABASES}/{database}/{ENDPOINT_COLLECTIONS}", 
             API_V2,
             json_data=json_data
         )
-    
+
     def get_collection(
         self,
         name: str,
@@ -437,7 +445,7 @@ class ChromaLensClient(BaseClient):
     
     # ========== Collection Data Operations ==========
     
-    def add(
+    def add_items(
         self,
         collection_id: str,
         embeddings: List[List[float]],
@@ -484,7 +492,7 @@ class ChromaLensClient(BaseClient):
             json_data=json_data
         )
     
-    def update(
+    def update_items(
         self,
         collection_id: str,
         embeddings: List[List[float]],
@@ -529,7 +537,7 @@ class ChromaLensClient(BaseClient):
             json_data=json_data
         )
     
-    def upsert(
+    def upsert_items(
         self,
         collection_id: str,
         embeddings: List[List[float]],
@@ -574,7 +582,7 @@ class ChromaLensClient(BaseClient):
             json_data=json_data
         )
     
-    def get(
+    def get_items(
         self,
         collection_id: str,
         ids: Optional[List[str]] = None,
@@ -632,7 +640,7 @@ class ChromaLensClient(BaseClient):
             json_data=json_data
         )
     
-    def delete(
+    def delete_items(
         self,
         collection_id: str,
         ids: Optional[List[str]] = None,
